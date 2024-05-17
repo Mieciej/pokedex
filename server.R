@@ -76,10 +76,5 @@ function(input, output, session) {
           geom_point(aes(color=name))
       }
     )
-    
   })
-  
-  
-  
-  
 }
