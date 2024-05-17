@@ -17,7 +17,7 @@ library(jsonlite)
 data <- read.csv("pokedex.csv", header = TRUE)
 
 get_pokemon_image_url <- function(pokemon_name) {
-  url <- paste0("https://pokeapi.co/api/v2/pokemon/", tolower(pokemon_name))
+  url <- paste0("https://pokeapi.co/api/v2/pokemon/", pokemon_name)
   response <- httr::GET(url)
   if (httr::http_error(response)) {
     return(NULL)
@@ -26,6 +26,11 @@ get_pokemon_image_url <- function(pokemon_name) {
   return(pokemon_data$sprites$front_default)
 }
 
+# use the data from csv
+fetch_pokemon_index_from_name <- function(pokemon_name) {
+  index <- data %>% filter(name == pokemon_name) %>% select(pokedex_number)
+  return(index)
+}
 
 # Define server logic required to draw a histogram
 function(input, output, session) {
@@ -41,7 +46,8 @@ function(input, output, session) {
       if (is.null(pokemon_name)) {
         return(NULL)
       }
-      pokemon_image_url <- get_pokemon_image_url(pokemon_name)
+      pokemon_image_url <- get_pokemon_image_url(fetch_pokemon_index_from_name(pokemon_name))
+      print(pokemon_image_url)
       if (is.null(pokemon_image_url)) {
         return(NULL)
       }
