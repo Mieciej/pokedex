@@ -6,12 +6,23 @@
 }
 
 .poke-card {
-  background-color: #f5f5f5;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   padding: 10px;
   margin-bottom: 20px;
   max-width: 300px;
+  overflow-y: hidden;
+  background: linear-gradient(to bottom, #f8f8f8, #e3e3e3);
+  border: 2px solid #666;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+  font-family: 'Pixelated', sans-serif;
+  font-size: 16px;
+  color: #333;
+  padding: 5px;
+}
+
+body {
+  overflow-y:hidden;
 }
 
 .poke-row {
@@ -50,4 +61,24 @@
     flex: 0 0 50%;
     max-width: 50%;
   }
+}
+
+
+
+
+
+
+.selectize-input {
+  background: linear-gradient(to bottom, #f8f8f8, #e3e3e3);
+  border: 2px solid #666;
+  border-radius: 5px;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+  font-family: 'Pixelated', sans-serif;
+  font-size: 16px;
+  color: #333;
+  padding: 5px;
+}
+
+.selectize-dropdown {
+  border: 5px solid #666;
 }
