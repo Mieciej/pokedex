@@ -13,7 +13,7 @@ library(tidyr)
 library(ggplot2)
 library(httr)
 library(jsonlite)
-library(fmsb)
+library(ggtext)
 data <- read.csv("pokedex.csv", header = TRUE)
 
 
@@ -46,14 +46,62 @@ min_defense = min(data$defense)
 min_sp_attack = min(data$sp_attack)
 min_sp_defense = min(data$sp_defense)
 min_speed = min(data$speed)
-poke_colors = c("#cd5241", "#084152", "#833118", "#eede7b","#207394","#eeb45a",
-                "#e64110", "#ffd510", "#f6a410", "#942010", "#ff836a", "#ff524a",
-                "#005aff"
-                )
-type_colors =  c("#A8A77A", "#EE8130", "#6390F0", "#F7D02C", "#7AC74C", "#96D9D6",
-                 "#C22E28", "#A33EA1", "#E2BF65", "#A98FF3", "#F95587", "#A6B91A",
-                 "#B6A136", "#735797", "#6F35FC", "#705746", "#B7B7CE", "#D685AD")
-                
+poke_colors <- c(hp = "#FF3333", attack = "#3366FF", sp_attack = "#9933FF",
+                  defense = "#339933", sp_defense = "#CCCC33",
+                  speed = "#FF9933")
+ 
+type_colors <- c(
+  against_normal = "#A8A77A",
+  against_fire = "#EE8130",
+  against_water = "#6390F0",
+  against_electric = "#F7D02C",
+  against_grass = "#7AC74C",
+  against_ice = "#96D9D6",
+  against_fight = "#C22E28",
+  against_poison = "#A33EA1",
+  against_ground = "#E2BF65",
+  against_flying = "#A98FF3",
+  against_psychic = "#F95587",
+  against_bug = "#A6B91A",
+  against_rock = "#B6A136",
+  against_ghost = "#735797",
+  against_dragon = "#6F35FC",
+  against_dark = "#705746",
+  against_steel = "#B7B7CE",
+  against_fairy = "#D685AD"
+)
+
+type_labels <- c(
+  against_normal = "<img src = 'icons/normal.png' width = '50' />",
+  against_fire = "<img src = 'icons/fire.png' width = '50' />",
+  against_water = "<img src = 'icons/water.png' width = '50' />",
+  against_electric = "<img src = 'icons/electric.png' width = '50' />",
+  against_grass = "<img src = 'icons/grass.png' width = '50' />",
+  against_ice = "<img src = 'icons/ice.png' width = '50' />",
+  against_fight = "<img src = 'icons/fighting.png' width = '50' />",
+  against_poison = "<img src = 'icons/poison.png' width = '50' />",
+  against_ground = "<img src = 'icons/ground.png' width = '50' />",
+  against_flying = "<img src = 'icons/flying.png' width = '50' />",
+  against_psychic = "<img src = 'icons/psychic.png' width = '50' />",
+  against_bug = "<img src = 'icons/bug.png' width = '50' />",
+  against_rock = "<img src = 'icons/rock.png' width = '50' />",
+  against_ghost = "<img src = 'icons/ghost.png' width = '50' />",
+  against_dragon = "<img src = 'icons/dragon.png' width = '50' />",
+  against_dark = "<img src = 'icons/dark.png' width = '50' />",
+  against_steel = "<img src = 'icons/steel.png' width = '50' />",
+  against_fairy = "<img src = 'icons/fairy.png' width = '50' />"
+)
+
+stat_labels <- c(
+  attack = "<img src = 'icons/attack.png' width = '30' />",
+  hp = "<img src = 'icons/hp.png' width = '30' />",
+  defense = "<img src = 'icons/defense.png' width = '30' />",
+  sp_attack = "<img src = 'icons/sp_attack.png' width = '30' />",
+  sp_defense = "<img src = 'icons/sp_defense.png' width = '30' />",
+  speed = "<img src = 'icons/speed.png' width = '30' />"
+)
+
+scaleFUN <- function(x) sprintf("%.2f", x)
 
 # Define server logic required to draw a histogram
 function(input, output, session) {
@@ -132,9 +180,18 @@ function(input, output, session) {
         
         ggplot(team_stats, aes(x =stat, y=value )) +
           geom_bar(stat="identity",aes(fill = stat)) + 
-          scale_fill_manual(values = poke_colors) +
-          ylim(0,1) +
-          coord_polar()
+          ylab("") +
+          xlab("") +
+          scale_fill_manual(values = poke_colors, labels=stat_labels ) +
+          coord_polar() +
+          scale_y_continuous(breaks = c(0,1),labels = NULL) +
+          theme_minimal() +
+          theme(axis.title.y = element_blank(),
+                axis.text = element_text(size = 12),
+                axis.text.x =  element_blank(),
+                legend.text = element_markdown(),
+                legend.title = element_blank()) 
+        
         
       }
       
@@ -154,7 +211,15 @@ function(input, output, session) {
       ggplot(team_damage, aes(x = type, y = value)) +
         geom_bar(stat = "identity", aes(fill = type)) +
         scale_fill_manual(values = type_colors) +
-        geom_hline(yintercept = 1.0)
+        geom_hline(yintercept = 1.0) + 
+        scale_x_discrete(name = NULL, labels =type_labels ) +
+        scale_y_continuous(labels = scaleFUN,breaks =c(0,1,max(team_damage$value)))+
+        theme_minimal() +
+        theme(axis.text.x = element_markdown(),
+              axis.title.y = element_blank(),
+              axis.text.y = element_text(size=20)) +
+        guides(fill ="none") 
+        
     })
       
     
