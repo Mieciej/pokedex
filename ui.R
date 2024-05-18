@@ -53,4 +53,5 @@ ui <- fluidPage(
            )
   ),
   plotOutput("avg_stat"),
+  plotOutput("avg_damage_taken")
 )

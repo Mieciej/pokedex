@@ -46,7 +46,15 @@ min_defense = min(data$defense)
 min_sp_attack = min(data$sp_attack)
 min_sp_defense = min(data$sp_defense)
 min_speed = min(data$speed)
-poke_colors = c("#cd5241", "#084152", "#833118", "#eede7b","#207394","#eeb45a")
+poke_colors = c("#cd5241", "#084152", "#833118", "#eede7b","#207394","#eeb45a",
+                "#e64110", "#ffd510", "#f6a410", "#942010", "#ff836a", "#ff524a",
+                "#005aff"
+                )
+type_colors =  c("#A8A77A", "#EE8130", "#6390F0", "#F7D02C", "#7AC74C", "#96D9D6",
+                 "#C22E28", "#A33EA1", "#E2BF65", "#A98FF3", "#F95587", "#A6B91A",
+                 "#B6A136", "#735797", "#6F35FC", "#705746", "#B7B7CE", "#D685AD")
+                
+
 # Define server logic required to draw a histogram
 function(input, output, session) {
   nums = c("01", "02", "03", "04", "05", "06")
@@ -124,11 +132,31 @@ function(input, output, session) {
         
         ggplot(team_stats, aes(x =stat, y=value )) +
           geom_bar(stat="identity",aes(fill = stat)) + 
-          scale_colour_manual(values = poke_colors) +
+          scale_fill_manual(values = poke_colors) +
           ylim(0,1) +
           coord_polar()
         
       }
+      
     )
+    team_damage <- poke_stats %>%
+      select(name, against_normal:against_fairy) %>%
+      left_join(poke_counter, by="name") %>%
+      uncount(n)  %>% 
+      gather("type","value", -name) %>%
+      group_by(type)%>%
+      mutate(value = mean(value)) %>%
+      ungroup() %>%
+      select(-name) %>%
+      distinct()
+    
+    output$avg_damage_taken <- renderPlot({
+      ggplot(team_damage, aes(x = type, y = value)) +
+        geom_bar(stat = "identity", aes(fill = type)) +
+        scale_fill_manual(values = type_colors) +
+        geom_hline(yintercept = 1.0)
+    })
+      
+    
   })
 }
