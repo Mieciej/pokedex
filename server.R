@@ -11,7 +11,26 @@ library(shiny)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(httr)
+library(jsonlite)
+
 data <- read.csv("pokedex.csv", header = TRUE)
+
+get_pokemon_image_url <- function(pokemon_name) {
+  url <- paste0("https://pokeapi.co/api/v2/pokemon/", pokemon_name)
+  response <- httr::GET(url)
+  if (httr::http_error(response)) {
+    return(NULL)
+  }
+  pokemon_data <- jsonlite::fromJSON(httr::content(response, "text"))
+  return(pokemon_data$sprites$front_default)
+}
+
+# use the data from csv
+fetch_pokemon_index_from_name <- function(pokemon_name) {
+  index <- data %>% filter(name == pokemon_name) %>% select(pokedex_number)
+  return(index)
+}
 
 # Define server logic required to draw a histogram
 function(input, output, session) {
@@ -20,6 +39,21 @@ function(input, output, session) {
     name <- paste("pokeName", num, sep = "")
     updateSelectizeInput(session, name, choices = data$name, server = TRUE)
   }
+  
+  lapply(1:6, function(i) {
+    output[[paste0("pokeOutput", sprintf("%02d", i))]] <- renderUI({
+      pokemon_name <- input[[paste0("pokeName", sprintf("%02d", i))]]
+      if (is.null(pokemon_name)) {
+        return(NULL)
+      }
+      pokemon_image_url <- get_pokemon_image_url(fetch_pokemon_index_from_name(pokemon_name))
+      print(pokemon_image_url)
+      if (is.null(pokemon_image_url)) {
+        return(NULL)
+      }
+      tags$img(src = pokemon_image_url, class = "poke-image")
+    })
+  })
   
   selected_pokemons =  reactiveValues(
     pokeName01 = NULL,
@@ -48,10 +82,5 @@ function(input, output, session) {
           geom_point(aes(color=name))
       }
     )
-    
   })
-  
-  
-  
-  
 }
