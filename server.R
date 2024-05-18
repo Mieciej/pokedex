@@ -13,6 +13,7 @@ library(tidyr)
 library(ggplot2)
 library(httr)
 library(jsonlite)
+library(shinycssloaders)
 
 data <- read.csv("pokedex.csv", header = TRUE)
 
@@ -47,11 +48,17 @@ function(input, output, session) {
         return(NULL)
       }
       pokemon_image_url <- get_pokemon_image_url(fetch_pokemon_index_from_name(pokemon_name))
-      print(pokemon_image_url)
       if (is.null(pokemon_image_url)) {
         return(NULL)
       }
-      tags$img(src = pokemon_image_url, class = "poke-image")
+      tags$div(
+        class = "poke-image-container",
+        style = "padding-top: 100%; position: relative;", # Position card inside container
+        tags$div(
+          style = "position: absolute; top: 0; left: 0; right: 0; bottom: 0;", # Position card inside container
+          tags$img(src = pokemon_image_url, class = "poke-image")
+        )
+      )
     })
   })
   

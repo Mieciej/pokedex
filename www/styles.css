@@ -19,6 +19,7 @@
   font-size: 16px;
   color: #333;
   padding: 5px;
+  overflow-y: hidden;
 }
 
 body {
@@ -80,5 +81,32 @@ body {
 }
 
 .selectize-dropdown {
-  border: 5px solid #666;
+  border: 2px solid #4CAF50;
+  border-radius: 5px;
+  background-color: #ffffff;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  max-height: 100px; /* Set the height to display 3 options */
+  overflow-y: auto;  /* Enable scrolling */
 }
+
+/* Style for the dropdown options */
+.selectize-dropdown .option {
+  padding: 10px;
+  cursor: pointer;
+}
+
+/* Style for hovered dropdown option */
+.selectize-dropdown .option:hover {
+  background-color: #f1f1f1;
+}
+
+/* Style for selected option in the dropdown */
+.selectize-dropdown .option.selected {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.single.selectize-dropdown.shiny-input-select.form-control.plugin-selectize-plugin-a11y {
+  overflow-y: hidden;
+}
+

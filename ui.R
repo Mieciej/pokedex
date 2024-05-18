@@ -13,8 +13,8 @@ ui <- fluidPage(
                   card(
                     class = "poke-card",
                     pokemon_selector('01'),
-                    uiOutput("pokeOutput01")
-                  )
+                   uiOutput("pokeOutput01"),                   
+                   )
            ),
            column(4, class = "poke-col",
                   card(
