@@ -13,8 +13,9 @@ library(tidyr)
 library(ggplot2)
 library(httr)
 library(jsonlite)
-
+library(fmsb)
 data <- read.csv("pokedex.csv", header = TRUE)
+
 
 get_pokemon_image_url <- function(pokemon_name) {
   url <- paste0("https://pokeapi.co/api/v2/pokemon/", pokemon_name)
@@ -32,6 +33,20 @@ fetch_pokemon_index_from_name <- function(pokemon_name) {
   return(index)
 }
 
+max_hp = max(data$hp)
+max_attack = max(data$attack)
+max_defense = max(data$defense)
+max_sp_attack = max(data$sp_attack)
+max_sp_defense = max(data$sp_defense)
+max_speed = max(data$speed)
+
+min_hp = min(data$hp)
+min_attack = min(data$attack)
+min_defense = min(data$defense)
+min_sp_attack = min(data$sp_attack)
+min_sp_defense = min(data$sp_defense)
+min_speed = min(data$speed)
+poke_colors = c("#cd5241", "#084152", "#833118", "#eede7b","#207394","#eeb45a")
 # Define server logic required to draw a histogram
 function(input, output, session) {
   nums = c("01", "02", "03", "04", "05", "06")
@@ -68,6 +83,17 @@ function(input, output, session) {
       name <- paste("pokeName", num, sep = "")
       selected_pokemons[[name]] = input[[name]]
     }
+    name = c(
+      selected_pokemons$pokeName01,
+      selected_pokemons$pokeName02,
+      selected_pokemons$pokeName03,
+      selected_pokemons$pokeName04,
+      selected_pokemons$pokeName05,
+      selected_pokemons$pokeName06
+    ) 
+    poke_counter <- data.frame(name)
+    poke_counter <- poke_counter %>% 
+      count(name)
     poke_stats = data %>% filter(
       name == selected_pokemons$pokeName01 |
         name == selected_pokemons$pokeName02 |
@@ -75,11 +101,33 @@ function(input, output, session) {
         name == selected_pokemons$pokeName04 |
         name == selected_pokemons$pokeName05 |
         name == selected_pokemons$pokeName06)
-    team_stats = poke_stats %>% select(name, hp, attack, defense, sp_attack,sp_defense, speed) %>%  gather("stat","value", -name)
+    team_stats = poke_stats %>%
+      select(name, hp, attack, defense, sp_attack,sp_defense, speed) %>%
+      mutate(hp = (hp-min_hp)/(max_hp-min_hp)) %>%
+      mutate(attack = (attack-min_attack)/(max_attack-min_attack)) %>%
+      mutate(defense = (defense-min_defense)/(max_defense-min_defense)) %>%
+      mutate(sp_attack = (sp_attack-min_sp_attack)/(max_sp_attack-min_sp_attack)) %>%
+      mutate(sp_defense = (sp_defense-min_sp_defense)/(max_sp_defense-min_sp_defense)) %>%
+      mutate(speed = (speed-min_speed)/(max_speed-min_speed)) %>%
+      left_join(poke_counter, by="name") %>%
+      uncount(n)  %>% 
+      gather("stat","value", -name) %>%
+      group_by(stat) %>%
+      mutate(value = mean(value)) %>% 
+      ungroup() %>%
+      select(-name) %>% 
+      distinct()
+      
+    
     output$avg_stat <- renderPlot(
       {
-        ggplot(team_stats,aes(x=stat, y=value)) +
-          geom_point(aes(color=name))
+        
+        ggplot(team_stats, aes(x =stat, y=value )) +
+          geom_bar(stat="identity",aes(fill = stat)) + 
+          scale_colour_manual(values = poke_colors) +
+          ylim(0,1) +
+          coord_polar()
+        
       }
     )
   })
