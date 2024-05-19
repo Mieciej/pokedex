@@ -125,11 +125,15 @@ function(input, output, session) {
       }
       tags$div(
         class = "poke-image-container",
-        style = "padding-top: 100%; position: relative;", # Position card inside container
+        style = "padding-top: 100%; position: relative; background: red;",
         tags$div(
-          style = "position: absolute; top: 0; left: 0; right: 0; bottom: 0;", # Position card inside container
-          tags$img(src = pokemon_image_url, class = "poke-image")
-        )
+          id = paste0("spinner", i),
+          class = "spinner",
+        ),
+        tags$div(
+          style = "position: absolute; top: 0; left: 0; right: 0; bottom: 0;",
+          tags$img(src = pokemon_image_url, class = "poke-image", id = paste0("pokeImage", i), onload = "imageLoaded(this.id)")
+        ),
       )
     })
   })

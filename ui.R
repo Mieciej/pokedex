@@ -1,5 +1,6 @@
 library(shiny)
 library(bslib)
+library(shinycssloaders)
 
 pokemon_selector <- function(num) {
   selectizeInput(paste("pokeName", num, sep = ""), label = "Choose your pokemon:", choices = NULL)
@@ -7,6 +8,7 @@ pokemon_selector <- function(num) {
 
 ui <- fluidPage(
   tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
+  tags$script(src = "script.js"),
   titlePanel("PokeDex"),
   fluidRow(class = "poke-row",
            column(4, class = "poke-col",

@@ -3,6 +3,7 @@
   justify-content: center;
   margin-left: 15%;
   image-rendering: pixelated;
+  display: none;
 }
 
 .poke-card {
@@ -20,10 +21,7 @@
   color: #333;
   padding: 5px;
   overflow-y: hidden;
-}
-
-body {
-  overflow-y:hidden;
+  max-height: 300px;
 }
 
 .poke-row {
@@ -109,4 +107,30 @@ body {
 .single.selectize-dropdown.shiny-input-select.form-control.plugin-selectize-plugin-a11y {
   overflow-y: hidden;
 }
+
+.card-body.bslib-gap-spacing.html-fill-item.html-fill-container {
+  overflow-y: hidden;
+}
+
+.poke-image-container {
+  position: relative;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: url('img/pokeball_loading.png') no-repeat center center;
+  background-size: contain; /* Adjust as needed */
+  animation: spin 1s ease-in-out infinite; /* Adjust animation duration and timing function as needed */
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
 
