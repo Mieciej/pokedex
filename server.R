@@ -125,7 +125,7 @@ function(input, output, session) {
       }
       tags$div(
         class = "poke-image-container",
-        style = "padding-top: 100%; position: relative; background: red;",
+        style = "padding-top: 100%; position: relative;",
         tags$div(
           id = paste0("spinner", i),
           class = "spinner",
