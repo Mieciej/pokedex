@@ -13,6 +13,10 @@
   display: none;
 }
 
+.card.bslib-card.bslib-mb-spacing.html-fill-item.html-fill-container.poke-card {
+  height: 300px;
+}
+
 .poke-card {
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -28,6 +32,7 @@
   color: #333;
   padding: 5px;
   overflow-y: hidden;
+  height: 300px;
   max-height: 300px;
 }
 
@@ -138,4 +143,8 @@
   60% { transform: translate(-50%, -50%) scale(1.2) rotate(-30deg); }
   70% { transform: translate(-50%, -50%) scale(1.2) rotate(0deg); }
   100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+}
+
+.well.sidebar {
+  background-color: #383985;
 }
