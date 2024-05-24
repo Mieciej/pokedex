@@ -110,7 +110,7 @@ function(input, output, session) {
   nums = c("01", "02", "03", "04", "05", "06")
   for (num in nums) {
     name <- paste("pokeName", num, sep = "")
-    updateSelectizeInput(session, name, choices = data$name, server = TRUE)
+    updateSelectizeInput(session, name, choices = data$name, server = TRUE,selected = sample_n(data,1) %>% select(name))
   }
   
   lapply(1:6, function(i) {
