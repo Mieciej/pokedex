@@ -15,7 +15,7 @@ library(httr)
 library(jsonlite)
 library(shinycssloaders)
 library(ggtext)
-
+library(DT)
 data <- read.csv("pokedex.csv", header = TRUE)
 
 
@@ -104,7 +104,34 @@ stat_labels <- c(
 )
 
 scaleFUN <- function(x) sprintf("%.2f", x)
+humanReadify <- function(d) {
+  d %>% select(
+    pokedex_number,
+    name,
+    type_1,
+    type_2,
+    total_points,
+    hp,
+    attack,
+    sp_attack,
+    defense,
+    sp_defense,
+    speed
+  )
+}
+human_readable_data <- humanReadify(data)
 
+gens =  c(
+  "Red/Green" = 1,
+  "Gold/Silver" = 2,
+  "Ruby/Sapphire" = 3,
+  "Diamond/Pearl" = 4,
+  "Black/White" = 5,
+  "X/Y" = 6,
+  "Sun/Moon" = 7,
+  "Sword/Shield" = 8,
+  "Scarlet/Violet" = 9
+)
 # Define server logic required to draw a histogram
 function(input, output, session) {
   nums = c("01", "02", "03", "04", "05", "06")
@@ -146,6 +173,7 @@ function(input, output, session) {
     pokeName05 = NULL,
     pokeName06 = NULL
   )
+  # Dashboard observe
   observe({
     for (num in nums) {
       name <- paste("pokeName", num, sep = "")
@@ -235,5 +263,26 @@ function(input, output, session) {
     })
       
     
+  })# Dashboard observe end
+  data_for_datatable <- reactive({
+    humanReadify(data %>% filter(generation %in% gens[input$gen_radio_buttons]))
   })
+  
+  output$national_table <- renderDataTable({
+    datatable(data = data_for_datatable())
+  }) 
+  
+  data_for_type_histogram <- reactive({
+    data %>% filter(generation %in% gens[input$gen_radio_buttons]) %>%
+      select(type_1,type_2) %>%
+      pivot_longer(everything(),names_to = "garbage", values_to = "type") %>%
+      filter(type !="") %>%
+      select(-garbage)
+  })
+  
+  output$type_histogram <- renderPlot({
+    ggplot(data_for_type_histogram(),aes(x=type)) +
+      geom_bar()
+  })
+  
 }
