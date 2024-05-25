@@ -53,45 +53,45 @@ poke_colors <- c(hp = "#FF3333", attack = "#3366FF", sp_attack = "#9933FF",
                   speed = "#FF9933")
  
 type_colors <- c(
-  against_normal = "#A8A77A",
-  against_fire = "#EE8130",
-  against_water = "#6390F0",
-  against_electric = "#F7D02C",
-  against_grass = "#7AC74C",
-  against_ice = "#96D9D6",
-  against_fight = "#C22E28",
-  against_poison = "#A33EA1",
-  against_ground = "#E2BF65",
-  against_flying = "#A98FF3",
-  against_psychic = "#F95587",
-  against_bug = "#A6B91A",
-  against_rock = "#B6A136",
-  against_ghost = "#735797",
-  against_dragon = "#6F35FC",
-  against_dark = "#705746",
-  against_steel = "#B7B7CE",
-  against_fairy = "#D685AD"
+  normal = "#A8A77A",
+  fire = "#EE8130",
+  water = "#6390F0",
+  electric = "#F7D02C",
+  grass = "#7AC74C",
+  ice = "#96D9D6",
+  fight = "#C22E28",
+  poison = "#A33EA1",
+  ground = "#E2BF65",
+  flying = "#A98FF3",
+  psychic = "#F95587",
+  bug = "#A6B91A",
+  rock = "#B6A136",
+  ghost = "#735797",
+  dragon = "#6F35FC",
+  dark = "#705746",
+  steel = "#B7B7CE",
+  fairy = "#D685AD"
 )
 
 type_labels <- c(
-  against_normal = "<img src = 'icons/normal.png' width = '50' />",
-  against_fire = "<img src = 'icons/fire.png' width = '50' />",
-  against_water = "<img src = 'icons/water.png' width = '50' />",
-  against_electric = "<img src = 'icons/electric.png' width = '50' />",
-  against_grass = "<img src = 'icons/grass.png' width = '50' />",
-  against_ice = "<img src = 'icons/ice.png' width = '50' />",
-  against_fight = "<img src = 'icons/fighting.png' width = '50' />",
-  against_poison = "<img src = 'icons/poison.png' width = '50' />",
-  against_ground = "<img src = 'icons/ground.png' width = '50' />",
-  against_flying = "<img src = 'icons/flying.png' width = '50' />",
-  against_psychic = "<img src = 'icons/psychic.png' width = '50' />",
-  against_bug = "<img src = 'icons/bug.png' width = '50' />",
-  against_rock = "<img src = 'icons/rock.png' width = '50' />",
-  against_ghost = "<img src = 'icons/ghost.png' width = '50' />",
-  against_dragon = "<img src = 'icons/dragon.png' width = '50' />",
-  against_dark = "<img src = 'icons/dark.png' width = '50' />",
-  against_steel = "<img src = 'icons/steel.png' width = '50' />",
-  against_fairy = "<img src = 'icons/fairy.png' width = '50' />"
+  normal = "<img src = 'icons/normal.png' width = '50' />",
+  fire = "<img src = 'icons/fire.png' width = '50' />",
+  water = "<img src = 'icons/water.png' width = '50' />",
+  electric = "<img src = 'icons/electric.png' width = '50' />",
+  grass = "<img src = 'icons/grass.png' width = '50' />",
+  ice = "<img src = 'icons/ice.png' width = '50' />",
+  fight = "<img src = 'icons/fighting.png' width = '50' />",
+  poison = "<img src = 'icons/poison.png' width = '50' />",
+  ground = "<img src = 'icons/ground.png' width = '50' />",
+  flying = "<img src = 'icons/flying.png' width = '50' />",
+  psychic = "<img src = 'icons/psychic.png' width = '50' />",
+  bug = "<img src = 'icons/bug.png' width = '50' />",
+  rock = "<img src = 'icons/rock.png' width = '50' />",
+  ghost = "<img src = 'icons/ghost.png' width = '50' />",
+  dragon = "<img src = 'icons/dragon.png' width = '50' />",
+  dark = "<img src = 'icons/dark.png' width = '50' />",
+  steel = "<img src = 'icons/steel.png' width = '50' />",
+  fairy = "<img src = 'icons/fairy.png' width = '50' />"
 )
 
 stat_labels <- c(
@@ -244,9 +244,9 @@ function(input, output, session) {
       group_by(type)%>%
       mutate(value = mean(value)) %>%
       ungroup() %>%
+      mutate(type = gsub("against_",'',type)) %>%
       select(-name) %>%
       distinct()
-    
     output$avg_damage_taken <- renderPlot({
       ggplot(team_damage, aes(x = type, y = value)) +
         geom_bar(stat = "identity", aes(fill = type)) +
@@ -277,12 +277,24 @@ function(input, output, session) {
       select(type_1,type_2) %>%
       pivot_longer(everything(),names_to = "garbage", values_to = "type") %>%
       filter(type !="") %>%
+      mutate(type = tolower(type)) %>%
+      mutate(type = ifelse(type =="fighting","fight",type)) %>%
       select(-garbage)
   })
   
   output$type_histogram <- renderPlot({
-    ggplot(data_for_type_histogram(),aes(x=type)) +
-      geom_bar()
+    ggplot(data_for_type_histogram(), aes(x = type)) +
+      geom_bar(aes(fill = type)) +
+      scale_x_discrete(name = NULL, labels = type_labels) +
+      scale_fill_manual(values = type_colors) +
+      theme_minimal() +
+      theme(
+        axis.text.x = element_markdown(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_text(size = 20)
+      ) +
+      guides(fill = "none")
+    
   })
   
 }
