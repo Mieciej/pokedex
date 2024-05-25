@@ -2,7 +2,7 @@ library(shiny)
 library(bslib)
 library(shinycssloaders)
 library(shinydashboard)
-
+library(DT)
 pokemon_selector <- function(num) {
   selectizeInput(paste("pokeName", num, sep = ""), label = "Choose your pokemon:", choices = NULL)
 }
@@ -10,7 +10,7 @@ pokemon_selector <- function(num) {
 sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
-    menuItem("Widgets", tabName = "widgets", icon = icon("th"))
+    menuItem("National Pokédex", tabName = "widgets", icon = icon("th"))
   )
 )
 
@@ -64,15 +64,36 @@ first_page <-       tabItem(tabName = "dashboard",
                                                  )
                                         ),
                                         plotOutput("avg_stat"),
+                                        plotOutput("avg_damage_taken"),
                               )
                             )
+)
+gens =  c(
+  "Red/Green",
+  "Gold/Silver",
+  "Ruby/Sapphire",
+  "Diamond/Pearl",
+  "Black/White",
+  "X/Y",
+  "Sun/Moon",
+  "Sword/Shield",
+  "Scarlet/Violet"
 )
 
 second_page <- tabItem(tabName = "widgets",
                        fluidPage(
-                         plotOutput("avg_damage_taken")
-                       )
-)
+                         checkboxGroupInput(
+                           "gen_radio_buttons",
+                           "Generations:",
+                           choices = gens,
+                           selected =gens
+                         ),
+                         dataTableOutput("national_table"),
+                         plotOutput("type_histogram"),
+                         plotOutput("best_pokemon_histogram"),
+                         plotOutput("best_pokemon_by_type_histogram")
+                         
+                       ))
 
 dashboardPage(
   dashboardHeader(title = "Pokédex"),
