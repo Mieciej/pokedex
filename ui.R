@@ -90,6 +90,8 @@ second_page <- tabItem(tabName = "widgets",
                          ),
                          dataTableOutput("national_table"),
                          plotOutput("type_histogram"),
+                         plotOutput("best_pokemon_histogram"),
+                         plotOutput("best_pokemon_by_type_histogram")
                          
                        ))
 

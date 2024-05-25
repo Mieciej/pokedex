@@ -17,7 +17,9 @@ library(shinycssloaders)
 library(ggtext)
 library(DT)
 data <- read.csv("pokedex.csv", header = TRUE)
-
+data <- data %>%
+  distinct(pokedex_number, .keep_all = TRUE)
+ # filter(!grepl('Mega|Alolan|Galarian|Partner|Primal', name) | name %in% c('Meganium', 'Yanmega'))
 
 get_pokemon_image_url <- function(pokemon_name) {
   url <- paste0("https://pokeapi.co/api/v2/pokemon/", pokemon_name)
@@ -34,6 +36,7 @@ fetch_pokemon_index_from_name <- function(pokemon_name) {
   index <- data %>% filter(name == pokemon_name) %>% select(pokedex_number)
   return(index)
 }
+
 
 max_hp = max(data$hp)
 max_attack = max(data$attack)
@@ -72,26 +75,27 @@ type_colors <- c(
   steel = "#B7B7CE",
   fairy = "#D685AD"
 )
+rank_colors = c(rocks = "#339933", sucks = "#3366FF")
 
 type_labels <- c(
-  normal = "<img src = 'icons/normal.png' width = '50' />",
-  fire = "<img src = 'icons/fire.png' width = '50' />",
-  water = "<img src = 'icons/water.png' width = '50' />",
-  electric = "<img src = 'icons/electric.png' width = '50' />",
-  grass = "<img src = 'icons/grass.png' width = '50' />",
-  ice = "<img src = 'icons/ice.png' width = '50' />",
-  fight = "<img src = 'icons/fighting.png' width = '50' />",
-  poison = "<img src = 'icons/poison.png' width = '50' />",
-  ground = "<img src = 'icons/ground.png' width = '50' />",
-  flying = "<img src = 'icons/flying.png' width = '50' />",
-  psychic = "<img src = 'icons/psychic.png' width = '50' />",
-  bug = "<img src = 'icons/bug.png' width = '50' />",
-  rock = "<img src = 'icons/rock.png' width = '50' />",
-  ghost = "<img src = 'icons/ghost.png' width = '50' />",
-  dragon = "<img src = 'icons/dragon.png' width = '50' />",
-  dark = "<img src = 'icons/dark.png' width = '50' />",
-  steel = "<img src = 'icons/steel.png' width = '50' />",
-  fairy = "<img src = 'icons/fairy.png' width = '50' />"
+  normal = "<img src = 'icons/normal.png' width = '45' />",
+  fire = "<img src = 'icons/fire.png' width = '45' />",
+  water = "<img src = 'icons/water.png' width = '45' />",
+  electric = "<img src = 'icons/electric.png' width = '45' />",
+  grass = "<img src = 'icons/grass.png' width = '45' />",
+  ice = "<img src = 'icons/ice.png' width = '45' />",
+  fight = "<img src = 'icons/fighting.png' width = '45' />",
+  poison = "<img src = 'icons/poison.png' width = '45' />",
+  ground = "<img src = 'icons/ground.png' width = '45' />",
+  flying = "<img src = 'icons/flying.png' width = '45' />",
+  psychic = "<img src = 'icons/psychic.png' width = '45' />",
+  bug = "<img src = 'icons/bug.png' width = '45' />",
+  rock = "<img src = 'icons/rock.png' width = '45' />",
+  ghost = "<img src = 'icons/ghost.png' width = '45' />",
+  dragon = "<img src = 'icons/dragon.png' width = '45' />",
+  dark = "<img src = 'icons/dark.png' width = '45' />",
+  steel = "<img src = 'icons/steel.png' width = '45' />",
+  fairy = "<img src = 'icons/fairy.png' width = '45' />"
 )
 
 stat_labels <- c(
@@ -105,19 +109,31 @@ stat_labels <- c(
 
 scaleFUN <- function(x) sprintf("%.2f", x)
 humanReadify <- function(d) {
-  d %>% select(
-    pokedex_number,
-    name,
-    type_1,
-    type_2,
-    total_points,
-    hp,
-    attack,
-    sp_attack,
-    defense,
-    sp_defense,
-    speed
-  )
+  d %>%
+    
+    mutate(
+      img = paste(
+        "<img src = 'https://raw.githubusercontent.com/pokeapi/sprites/master/sprites/pokemon/",
+        pokedex_number,
+        ".png'",
+        " width = '75' />",
+        sep = ""
+      )
+    ) %>%
+    select(
+      img,
+      pokedex_number,
+      name,
+      type_1,
+      type_2,
+      total_points,
+      hp,
+      attack,
+      sp_attack,
+      defense,
+      sp_defense,
+      speed
+    )
 }
 human_readable_data <- humanReadify(data)
 
@@ -269,7 +285,7 @@ function(input, output, session) {
   })
   
   output$national_table <- renderDataTable({
-    datatable(data = data_for_datatable())
+    datatable(data = data_for_datatable(),escape = FALSE)
   }) 
   
   data_for_type_histogram <- reactive({
@@ -283,6 +299,7 @@ function(input, output, session) {
   })
   
   output$type_histogram <- renderPlot({
+    
     ggplot(data_for_type_histogram(), aes(x = type)) +
       geom_bar(aes(fill = type)) +
       scale_x_discrete(name = NULL, labels = type_labels) +
@@ -296,5 +313,81 @@ function(input, output, session) {
       guides(fill = "none")
     
   })
-  
+  data_for_best_pokemon <- reactive({
+    temp <- data %>% filter(generation %in% gens[input$gen_radio_buttons]) %>%
+      mutate(
+        name = paste(
+          "<img src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/",
+          pokedex_number,
+          ".png'",
+          " width = '75' />",
+          sep = ""
+        )
+      ) %>%
+      select(pokedex_number,name,total_points)
+    
+    best_pokemon <- top_n(temp, 3, total_points) %>%
+      mutate(rank = "rocks")
+    worst_pokemon <- top_n(temp, 3, -total_points) %>%
+      mutate(rank = "sucks")
+    union(best_pokemon, worst_pokemon)
+  })
+  output$best_pokemon_histogram <- renderPlot({
+    ggplot(data_for_best_pokemon(),aes(x=reorder(name,total_points), y=total_points)) +
+      geom_bar(stat = "identity",aes(fill = rank)) +
+      scale_fill_manual(values = rank_colors) +
+      coord_flip() +
+      theme_minimal() +
+      theme(
+        axis.text.y = element_markdown(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 20),
+        axis.title.x = element_blank()
+      ) + 
+      guides(fill = "none")
+  })
+  data_for_best_poke_types <- reactive({
+    tmp = data %>% filter(generation %in% gens[input$gen_radio_buttons]) %>%
+      pivot_longer(type_1:type_2,names_to = "garbage", values_to = "type") %>%
+      filter(type !="") %>%
+      mutate(type = tolower(type)) %>%
+      mutate(type = ifelse(type =="fighting","fight",type)) %>%
+      select(pokedex_number,name,total_points,type) %>%
+      mutate(
+        name = paste(
+          "<img src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/",
+          pokedex_number,
+          ".png'",
+          " width = '50' />",
+          sep = ""
+        )
+      )
+    best_pokemon = tmp %>%
+      group_by(type) %>%
+      top_n(1,total_points) %>%
+      slice(1:1) %>%
+      ungroup()
+    worst_pokemon = tmp %>%
+      group_by(type) %>%
+      top_n(1,-total_points) %>% 
+      slice(1:1) %>%
+      ungroup()
+    union(best_pokemon,worst_pokemon)
+    
+  })
+  output$best_pokemon_by_type_histogram <- renderPlot({
+    ggplot(data_for_best_poke_types(),aes(x=reorder(name,-total_points), y=total_points)) +
+      geom_bar(stat="identity",aes(fill=type)) +
+      scale_fill_manual(values = type_colors) +
+      facet_grid(.~type, scales = "free_x",labeller = labeller(type = type_labels)) +
+      theme_minimal() +
+      theme(
+        axis.text.x = element_markdown(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_text(size = 20),
+        strip.text = element_markdown(),
+        axis.title.x = element_blank()
+      ) +  
+      guides(fill = "none")
+  })
 }
