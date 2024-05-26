@@ -318,7 +318,10 @@ function(input, output, session) {
       theme(
         axis.text.x = element_markdown(),
         axis.title.y = element_blank(),
-        axis.text.y = element_text(size = 20)
+        axis.text.y = element_text(size = 20),
+        panel.background = element_rect(fill = "#ECF0F5", color = "#ECF0F5"),
+        plot.background = element_rect(fill = "#ECF0F5", color = "#ECF0F5"),
+        panel.border = element_blank(),
       ) +
       guides(fill = "none")
     
@@ -352,12 +355,17 @@ function(input, output, session) {
         axis.text.y = element_markdown(),
         axis.title.y = element_blank(),
         axis.text.x = element_text(size = 20),
-        axis.title.x = element_blank()
+        axis.title.x = element_blank(),
+        panel.background = element_rect(fill = "#ECF0F5", color = "#ECF0F5"),
+        plot.background = element_rect(fill = "#ECF0F5", color = "#ECF0F5"),
+        panel.border = element_blank(),
       ) + 
       guides(fill = "none")
   })
   data_for_best_poke_types <- reactive({
-    tmp = data %>% filter(generation %in% gens[input$gen_radio_buttons]) %>%
+    # join info from gen_radio_buttons, gen_radio_buttonsB, gen_radio_buttonsC
+    input_buttons = c(input$gen_radio_buttons, input$gen_radio_buttonsB, input$gen_radio_buttonsC, input$gen_radio_buttonsD, input$gen_radio_buttonsE)
+    tmp = data %>% filter(generation %in% gens[input_buttons]) %>%
       pivot_longer(type_1:type_2,names_to = "garbage", values_to = "type") %>%
       filter(type !="") %>%
       mutate(type = tolower(type)) %>%
@@ -396,8 +404,26 @@ function(input, output, session) {
         axis.title.y = element_blank(),
         axis.text.y = element_text(size = 20),
         strip.text = element_markdown(),
-        axis.title.x = element_blank()
+        axis.title.x = element_blank(), 
+        panel.background = element_rect(fill = "#ECF0F5", color = "#ECF0F5"),
+        plot.background = element_rect(fill = "#ECF0F5", color = "#ECF0F5"),
+        panel.border = element_blank(),
       ) +  
       guides(fill = "none")
+  })
+  
+  # fill the pokecards on third_page
+  
+  output$poke_card <- renderUI({
+    lapply(1:6, function(i) {
+      tags$div(
+        class = "poke-card",
+        tags$div(
+          class = "poke-card-header",
+          tags$h3(selected_pokemons[[paste0("pokeName", sprintf("%02d", i))]])
+        ),
+        uiOutput(paste0("pokeOutput", sprintf("%02d", i)))
+      )
+    })
   })
 }
