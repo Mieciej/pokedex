@@ -148,3 +148,11 @@
 .well.sidebar {
   background-color: #383985;
 }
+
+#national_table {
+  height:1100px !important;
+}
+
+#DataTables_Table_0 td {
+    height: 75px;
+}
