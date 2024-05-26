@@ -16,6 +16,7 @@ library(jsonlite)
 library(shinycssloaders)
 library(ggtext)
 library(DT)
+
 data <- read.csv("pokedex.csv", header = TRUE)
 data <- data %>%
   distinct(pokedex_number, .keep_all = TRUE)
@@ -233,8 +234,7 @@ function(input, output, session) {
     
     output$avg_stat <- renderPlot(
       {
-        
-        ggplot(team_stats, aes(x =stat, y=value )) +
+        g <- ggplot(team_stats, aes(x =stat, y=value )) +
           geom_bar(stat="identity",aes(fill = stat)) + 
           ylab("") +
           xlab("") +
@@ -246,11 +246,18 @@ function(input, output, session) {
                 axis.text = element_text(size = 12),
                 axis.text.x =  element_blank(),
                 legend.text = element_markdown(),
-                legend.title = element_blank()) 
-        
-        
+                legend.title = element_blank(),
+                panel.background = element_rect(fill = "#ECF0F5", color = "#ECF0F5"),
+                plot.background = element_rect(fill = "#ECF0F5", color = "#ECF0F5"),
+                panel.border = element_blank(),
+                panel.grid.major = element_line(color = "#404040"),
+                panel.grid.minor = element_line(color = "#404040"),
+                plot.margin = margin(0, 0, 0, 0))
+        library(grid)
+        grob <- ggplotGrob(g)
+        grid.newpage()
+        grid.draw(grob)
       }
-      
     )
     team_damage <- poke_stats %>%
       select(name, against_normal:against_fairy) %>%
@@ -273,7 +280,10 @@ function(input, output, session) {
         theme_minimal() +
         theme(axis.text.x = element_markdown(),
               axis.title.y = element_blank(),
-              axis.text.y = element_text(size=20)) +
+              axis.text.y = element_text(size=20),
+              panel.background = element_rect(fill = "#ECF0F5", color = "#ECF0F5"),
+              plot.background = element_rect(fill = "#ECF0F5", color = "#ECF0F5"),
+              panel.border = element_blank(),) +
         guides(fill ="none") 
         
     })

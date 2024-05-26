@@ -63,8 +63,16 @@ first_page <-       tabItem(tabName = "dashboard",
                                                         )
                                                  )
                                         ),
-                                        plotOutput("avg_stat"),
-                                        plotOutput("avg_damage_taken"),
+                                        fluidRow(
+                                          column(width = 4,
+                                                 plotOutput("avg_stat", width = "461px", height = "400px"),
+                                                 class = "avg-stat-plot"
+                                          ),
+                                          column(width = 8,
+                                                 plotOutput("avg_damage_taken"),
+                                                 class = "avg-damage-dealt-plot"
+                                          )
+                                        )
                               )
                             )
 )
