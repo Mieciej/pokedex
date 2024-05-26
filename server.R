@@ -318,7 +318,10 @@ function(input, output, session) {
       theme(
         axis.text.x = element_markdown(),
         axis.title.y = element_blank(),
-        axis.text.y = element_text(size = 20)
+        axis.text.y = element_text(size = 20),
+        panel.background = element_rect(fill = "#ECF0F5", color = "#ECF0F5"),
+        plot.background = element_rect(fill = "#ECF0F5", color = "#ECF0F5"),
+        panel.border = element_blank(),
       ) +
       guides(fill = "none")
     
@@ -352,12 +355,17 @@ function(input, output, session) {
         axis.text.y = element_markdown(),
         axis.title.y = element_blank(),
         axis.text.x = element_text(size = 20),
-        axis.title.x = element_blank()
+        axis.title.x = element_blank(),
+        panel.background = element_rect(fill = "#ECF0F5", color = "#ECF0F5"),
+        plot.background = element_rect(fill = "#ECF0F5", color = "#ECF0F5"),
+        panel.border = element_blank(),
       ) + 
       guides(fill = "none")
   })
   data_for_best_poke_types <- reactive({
-    tmp = data %>% filter(generation %in% gens[input$gen_radio_buttons]) %>%
+    # join info from gen_radio_buttons, gen_radio_buttonsB, gen_radio_buttonsC
+    input_buttons = c(input$gen_radio_buttons, input$gen_radio_buttonsB, input$gen_radio_buttonsC, input$gen_radio_buttonsD, input$gen_radio_buttonsE)
+    tmp = data %>% filter(generation %in% gens[input_buttons]) %>%
       pivot_longer(type_1:type_2,names_to = "garbage", values_to = "type") %>%
       filter(type !="") %>%
       mutate(type = tolower(type)) %>%
@@ -396,8 +404,45 @@ function(input, output, session) {
         axis.title.y = element_blank(),
         axis.text.y = element_text(size = 20),
         strip.text = element_markdown(),
-        axis.title.x = element_blank()
+        axis.title.x = element_blank(), 
+        panel.background = element_rect(fill = "#ECF0F5", color = "#ECF0F5"),
+        plot.background = element_rect(fill = "#ECF0F5", color = "#ECF0F5"),
+        panel.border = element_blank(),
       ) +  
       guides(fill = "none")
+  })
+  
+  observe({
+    nums = c("31", "32")
+    for (num in nums) {
+      name <- paste("pokeName", num, sep = "")
+      updateSelectizeInput(session, name, choices = data$name, server = TRUE,selected = sample_n(data,1) %>% select(name))
+    }
+    
+    lapply(nums, function(num) {
+      output[[paste0("pokeOutput", num)]] <- renderUI({
+        pokemon_name <- input[[paste0("pokeName", num)]]
+        if (is.null(pokemon_name)) {
+          return(NULL)
+        }
+        pokemon_image_url <- get_pokemon_image_url(fetch_pokemon_index_from_name(pokemon_name))
+        if (is.null(pokemon_image_url)) {
+          return(NULL)
+        }
+        tags$div(
+          class = "poke-image-container",
+          style = "padding-top: 100%; position: relative;",
+          tags$div(
+            id = paste0("spinner", num),
+            class = "spinner",
+          ),
+          tags$div(
+            style = "position: absolute; top: 0; left: 0; right: 0; bottom: 0;",
+            tags$img(src = pokemon_image_url, class = "poke-image", id = paste0("pokeImage", num), onload = "imageLoadedComparisonDasboard(this.id)")
+          ),
+        )
+      })
+    })
+    
   })
 }

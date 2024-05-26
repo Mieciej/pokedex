@@ -151,8 +151,19 @@
 
 #national_table {
   height:1100px !important;
+  font-family: var(--main-font);
 }
 
 #DataTables_Table_0 td {
     height: 75px;
 }
+
+.gen-choice-row {
+  font-family: var(--main-font);
+}
+
+input[type=checkbox]{transform:scale(1.2); margin:0px 30px 10px; margin-left: -20px; margin-top: 3px}
+hr{position:relative;bottom:4px; border-bottom:1px solid #cccccc11;}
+.accent{accent-color: #49596e; }
+.accent:not(:checked){opacity:0.5;}
+span{font-size:0.8em;}
