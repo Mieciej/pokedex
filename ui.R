@@ -167,11 +167,11 @@ second_page <- tabItem(tabName = "widgets",
 third_page <- tabItem(tabName = "comparison",
                       fluidPage(
                         fluidRow(
-                          column(width=6,
+                          column(width=4, offset=2,
                             card(class = "poke-card",
                              pokemon_selector('31'),
                              uiOutput("pokeOutput31"))),
-                          column(width=6,
+                          column(width=5, offset=1,
                             card(class = "poke-card",
                              pokemon_selector('32'),
                              uiOutput("pokeOutput32")))

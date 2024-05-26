@@ -412,18 +412,37 @@ function(input, output, session) {
       guides(fill = "none")
   })
   
-  # fill the pokecards on third_page
-  
-  output$poke_card <- renderUI({
-    lapply(1:6, function(i) {
-      tags$div(
-        class = "poke-card",
+  observe({
+    nums = c("31", "32")
+    for (num in nums) {
+      name <- paste("pokeName", num, sep = "")
+      updateSelectizeInput(session, name, choices = data$name, server = TRUE,selected = sample_n(data,1) %>% select(name))
+    }
+    
+    lapply(nums, function(num) {
+      output[[paste0("pokeOutput", num)]] <- renderUI({
+        pokemon_name <- input[[paste0("pokeName", num)]]
+        if (is.null(pokemon_name)) {
+          return(NULL)
+        }
+        pokemon_image_url <- get_pokemon_image_url(fetch_pokemon_index_from_name(pokemon_name))
+        if (is.null(pokemon_image_url)) {
+          return(NULL)
+        }
         tags$div(
-          class = "poke-card-header",
-          tags$h3(selected_pokemons[[paste0("pokeName", sprintf("%02d", i))]])
-        ),
-        uiOutput(paste0("pokeOutput", sprintf("%02d", i)))
-      )
+          class = "poke-image-container",
+          style = "padding-top: 100%; position: relative;",
+          tags$div(
+            id = paste0("spinner", num),
+            class = "spinner",
+          ),
+          tags$div(
+            style = "position: absolute; top: 0; left: 0; right: 0; bottom: 0;",
+            tags$img(src = pokemon_image_url, class = "poke-image", id = paste0("pokeImage", num), onload = "imageLoadedComparisonDasboard(this.id)")
+          ),
+        )
+      })
     })
+    
   })
 }
