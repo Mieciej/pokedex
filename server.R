@@ -16,6 +16,7 @@ library(jsonlite)
 library(shinycssloaders)
 library(ggtext)
 library(DT)
+library(plotly)
 
 data <- read.csv("pokedex.csv", header = TRUE)
 data <- data %>%
@@ -108,6 +109,15 @@ stat_labels <- c(
   speed = "<img src = 'icons/speed.png' width = '30' />"
 )
 
+stat_labels_comp <- c(
+  attack = "icons/attack.png",
+  hp = "icons/hp.png",
+  defense = "icons/defense.png",
+  sp_attack = "icons/sp_attack.png",
+  sp_defense = "icons/sp_defense.png",
+  speed = "icons/speed.png"
+)
+
 scaleFUN <- function(x) sprintf("%.2f", x)
 humanReadify <- function(d) {
   d %>%
@@ -152,7 +162,13 @@ gens =  c(
 # Define server logic required to draw a histogram
 function(input, output, session) {
   nums = c("01", "02", "03", "04", "05", "06")
+  nums_comp = c("31", "32")
   for (num in nums) {
+    name <- paste("pokeName", num, sep = "")
+    updateSelectizeInput(session, name, choices = data$name, server = TRUE,selected = sample_n(data,1) %>% select(name))
+  }
+  
+  for (num in nums_comp) {
     name <- paste("pokeName", num, sep = "")
     updateSelectizeInput(session, name, choices = data$name, server = TRUE,selected = sample_n(data,1) %>% select(name))
   }
@@ -182,6 +198,31 @@ function(input, output, session) {
     })
   })
   
+  lapply(nums_comp, function(num) {
+    output[[paste0("pokeOutput", num)]] <- renderUI({
+      pokemon_name <- input[[paste0("pokeName", num)]]
+      if (is.null(pokemon_name)) {
+        return(NULL)
+      }
+      pokemon_image_url <- get_pokemon_image_url(fetch_pokemon_index_from_name(pokemon_name))
+      if (is.null(pokemon_image_url)) {
+        return(NULL)
+      }
+      tags$div(
+        class = "poke-image-container",
+        style = "padding-top: 100%; position: relative;",
+        tags$div(
+          id = paste0("spinner", num),
+          class = "spinner",
+        ),
+        tags$div(
+          style = "position: absolute; top: 0; left: 0; right: 0; bottom: 0;",
+          tags$img(src = pokemon_image_url, class = "poke-image", id = paste0("pokeImage", num), onload = "imageLoadedComparisonDasboard(this.id)")
+        ),
+      )
+    })
+  })
+  
   selected_pokemons =  reactiveValues(
     pokeName01 = NULL,
     pokeName02 = NULL,
@@ -190,11 +231,22 @@ function(input, output, session) {
     pokeName05 = NULL,
     pokeName06 = NULL
   )
+  
+  selected_pokemons_comp =  reactiveValues(
+    pokeName31 = NULL,
+    pokeName32 = NULL
+  )
+  
   # Dashboard observe
   observe({
     for (num in nums) {
       name <- paste("pokeName", num, sep = "")
       selected_pokemons[[name]] = input[[name]]
+    }
+    
+    for (num in nums_comp) {
+      name <- paste("pokeName", num, sep = "")
+      selected_pokemons_comp[[name]] = input[[name]]
     }
     name = c(
       selected_pokemons$pokeName01,
@@ -204,6 +256,19 @@ function(input, output, session) {
       selected_pokemons$pokeName05,
       selected_pokemons$pokeName06
     ) 
+    
+    names_comp = c(
+      selected_pokemons_comp$pokeName31,
+      selected_pokemons_comp$pokeName32
+    )
+    
+    print(names_comp[1])
+    print(names_comp[2])
+    
+    comparison_stats = data %>% filter(
+      name == selected_pokemons_comp$pokeName31 |
+      name == selected_pokemons_comp$pokeName32)
+    
     poke_counter <- data.frame(name)
     poke_counter <- poke_counter %>% 
       count(name)
@@ -230,7 +295,6 @@ function(input, output, session) {
       ungroup() %>%
       select(-name) %>% 
       distinct()
-      
     
     output$avg_stat <- renderPlot(
       {
@@ -291,15 +355,143 @@ function(input, output, session) {
     
   })# Dashboard observe end
   data_for_datatable <- reactive({
-    humanReadify(data %>% filter(generation %in% gens[input$gen_radio_buttons]))
+    input_buttons = c(input$gen_radio_buttons, input$gen_radio_buttonsB, input$gen_radio_buttonsC, input$gen_radio_buttonsD, input$gen_radio_buttonsE)
+    humanReadify(data %>% filter(generation %in% gens[input_buttons]))
   })
   
   output$national_table <- renderDataTable({
     datatable(data = data_for_datatable(),escape = FALSE)
   }) 
   
+  comparison_data = reactive({
+    comp_stats = data %>% filter(name %in% c(input$pokeName31, input$pokeName32))
+    x = comp_stats %>%
+      select(name, hp, attack, defense, sp_attack, sp_defense, speed) %>%
+      mutate(hp = (hp-min_hp)/(max_hp-min_hp)) %>%
+      mutate(attack = (attack-min_attack)/(max_attack-min_attack)) %>%
+      mutate(defense = (defense-min_defense)/(max_defense-min_defense)) %>%
+      mutate(sp_attack = (sp_attack-min_sp_attack)/(max_sp_attack-min_sp_attack)) %>%
+      mutate(sp_defense = (sp_defense-min_sp_defense)/(max_sp_defense-min_sp_defense)) %>%
+      mutate(speed = (speed-min_speed)/(max_speed-min_speed))
+    x
+  })
+  
+  output$comparison_plot <- renderPlotly({
+    thetas = c("HP", "Attack", "Defense", "Sp. Attack", "Sp. Defense", "Speed")
+    data1 <- comparison_data() %>% 
+      select(hp, attack, defense, sp_attack, sp_defense, speed) %>% 
+      slice(1) %>% 
+      unlist() %>% 
+      round(2)
+    data2 <- comparison_data() %>% 
+      select(hp, attack, defense, sp_attack, sp_defense, speed) %>% 
+      slice(2) %>% 
+      unlist() %>% 
+      round(2)
+    
+    hovertext1 <- paste0("<b>", input$pokeName31, "</b><br>", thetas, ": ", data1)
+    hovertext2 <- paste0("<b>", input$pokeName32, "</b><br>", thetas, ": ", data2)
+    
+    fig <- plot_ly(
+      type = 'scatterpolar',
+      fill = 'toself'
+    )
+    fig <- fig %>%
+      add_trace(
+        r = data1,
+        theta = c(" ", "  ", "   ", "    ", "     ", "      "),
+        hovertext = hovertext1,
+        name = input$pokeName31,
+        hoverinfo = 'text'
+      )
+    fig <- fig %>%
+      add_trace(
+        r = data2,
+        theta = c(" ", "  ", "   ", "    ", "     ", "      "),
+        hovertext = hovertext2,
+        name = input$pokeName32,
+        hoverinfo = 'text'
+      )
+    fig <- fig %>%
+      layout(
+        polar = list(
+          radialaxis = list(
+            visible = TRUE,
+            range = c(0, 1)
+          )
+        )
+      )
+    
+    
+    fig <- fig %>%
+      layout(
+        paper_bgcolor = "#ECF0F5",
+        plot_bgcolor = "#ECF0F5",
+        showlegend = FALSE,
+        images = list(
+          list(
+            source = base64enc::dataURI(file = "icons/hp.png"),
+            x = 0.80,
+            y = 0.5,
+            sizex = 0.1,
+            sizey = 0.1,
+            xanchor = "left",
+            yanchor = "middle"
+          ),
+          list(
+            source = base64enc::dataURI(file = "icons/attack.png"),
+            x = 0.67,
+            y = 0.95,
+            sizex = 0.1,
+            sizey = 0.1,
+            xanchor = "center",
+            yanchor = "bottom"
+          ),
+          list(
+            source = base64enc::dataURI(file = "icons/defense.png"),
+            x = 0.33,
+            y = 0.95,
+            sizex = 0.1,
+            sizey = 0.1,
+            xanchor = "center",
+            yanchor = "bottom"
+          ),
+          list(
+            source = base64enc::dataURI(file = "icons/sp_attack.png"),
+            x = 0.20,
+            y = 0.5,
+            sizex = 0.1,
+            sizey = 0.1,
+            xanchor = "right",
+            yanchor = "middle"
+          ),
+          list(
+            source = base64enc::dataURI(file = "icons/sp_defense.png"),
+            x = 0.33,
+            y = 0.05,
+            sizex = 0.1,
+            sizey = 0.1,
+            xanchor = "center",
+            yanchor = "top"
+          ),
+          list(
+            source = base64enc::dataURI(file = "icons/speed.png"),
+            x = 0.67,
+            y = 0.05,
+            sizex = 0.1,
+            sizey = 0.1,
+            xanchor = "center",
+            yanchor = "top"
+          )
+        )
+      )
+    
+    fig
+  })
+  
   data_for_type_histogram <- reactive({
-    data %>% filter(generation %in% gens[input$gen_radio_buttons]) %>%
+    input_buttons = c(input$gen_radio_buttons, input$gen_radio_buttonsB, input$gen_radio_buttonsC, input$gen_radio_buttonsD, input$gen_radio_buttonsE)
+    data %>% filter(generation %in% gens[input_buttons]) %>%
       select(type_1,type_2) %>%
       pivot_longer(everything(),names_to = "garbage", values_to = "type") %>%
       filter(type !="") %>%
@@ -309,7 +501,6 @@ function(input, output, session) {
   })
   
   output$type_histogram <- renderPlot({
-    
     ggplot(data_for_type_histogram(), aes(x = type)) +
       geom_bar(aes(fill = type)) +
       scale_x_discrete(name = NULL, labels = type_labels) +
@@ -327,7 +518,8 @@ function(input, output, session) {
     
   })
   data_for_best_pokemon <- reactive({
-    temp <- data %>% filter(generation %in% gens[input$gen_radio_buttons]) %>%
+    input_buttons = c(input$gen_radio_buttons, input$gen_radio_buttonsB, input$gen_radio_buttonsC, input$gen_radio_buttonsD, input$gen_radio_buttonsE)
+    temp <- data %>% filter(generation %in% gens[input_buttons]) %>%
       mutate(
         name = paste(
           "<img src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/",
@@ -391,7 +583,6 @@ function(input, output, session) {
       slice(1:1) %>%
       ungroup()
     union(best_pokemon,worst_pokemon)
-    
   })
   output$best_pokemon_by_type_histogram <- renderPlot({
     ggplot(data_for_best_poke_types(),aes(x=reorder(name,-total_points), y=total_points)) +
@@ -410,39 +601,5 @@ function(input, output, session) {
         panel.border = element_blank(),
       ) +  
       guides(fill = "none")
-  })
-  
-  observe({
-    nums = c("31", "32")
-    for (num in nums) {
-      name <- paste("pokeName", num, sep = "")
-      updateSelectizeInput(session, name, choices = data$name, server = TRUE,selected = sample_n(data,1) %>% select(name))
-    }
-    
-    lapply(nums, function(num) {
-      output[[paste0("pokeOutput", num)]] <- renderUI({
-        pokemon_name <- input[[paste0("pokeName", num)]]
-        if (is.null(pokemon_name)) {
-          return(NULL)
-        }
-        pokemon_image_url <- get_pokemon_image_url(fetch_pokemon_index_from_name(pokemon_name))
-        if (is.null(pokemon_image_url)) {
-          return(NULL)
-        }
-        tags$div(
-          class = "poke-image-container",
-          style = "padding-top: 100%; position: relative;",
-          tags$div(
-            id = paste0("spinner", num),
-            class = "spinner",
-          ),
-          tags$div(
-            style = "position: absolute; top: 0; left: 0; right: 0; bottom: 0;",
-            tags$img(src = pokemon_image_url, class = "poke-image", id = paste0("pokeImage", num), onload = "imageLoadedComparisonDasboard(this.id)")
-          ),
-        )
-      })
-    })
-    
   })
 }

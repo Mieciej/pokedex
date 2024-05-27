@@ -3,6 +3,8 @@ library(bslib)
 library(shinycssloaders)
 library(shinydashboard)
 library(DT)
+library(plotly)
+
 pokemon_selector <- function(num) {
   selectizeInput(paste("pokeName", num, sep = ""),
                  label = "Choose your pokemon:",
@@ -16,7 +18,11 @@ sidebar <- dashboardSidebar(sidebarMenu(
     icon = icon("dashboard")
   ),
   menuItem("National Pokédex", tabName = "widgets", icon = icon("th")),
-  menuItem("Pokemon Comparison", tabName = "comparison", icon = icon("th"))
+  menuItem(
+    "Pokemon Comparison",
+    tabName = "comparison",
+    icon = icon("th")
+  )
 ))
 
 first_page <-       tabItem(tabName = "dashboard",
@@ -32,7 +38,7 @@ first_page <-       tabItem(tabName = "dashboard",
                                     class = "poke-col",
                                     card(class = "poke-card",
                                          pokemon_selector('01'),
-                                         uiOutput("pokeOutput01"),)
+                                         uiOutput("pokeOutput01"), )
                                   ),
                                   column(
                                     4,
@@ -165,17 +171,28 @@ second_page <- tabItem(tabName = "widgets",
                        ))
 
 third_page <- tabItem(tabName = "comparison",
-                      fluidPage(
-                        fluidRow(
-                          column(width=4, offset=2,
-                            card(class = "poke-card",
-                             pokemon_selector('31'),
-                             uiOutput("pokeOutput31"))),
-                          column(width=5, offset=1,
-                            card(class = "poke-card",
-                             pokemon_selector('32'),
-                             uiOutput("pokeOutput32")))
-                          )))
+                      fluidPage(fluidRow(
+                        column(
+                          width = 4,
+                          offset = 2,
+                          card(class = "poke-card second_comp",
+                               pokemon_selector('31'),
+                               uiOutput("pokeOutput31"))
+                        ),
+                        column(
+                          width = 4,
+                          offset = 2,
+                          card(class = "poke-card first_comp",
+                               pokemon_selector('32'),
+                               uiOutput("pokeOutput32"))                        )
+                      ),
+                      fluidRow(column(
+                        width = 12,
+                        offset = 4,
+                        plotlyOutput("comparison_plot", width = 670, height = 400)
+                        
+                        
+                      ))))
 
 dashboardPage(dashboardHeader(title = "Pokédex"),
               sidebar,
