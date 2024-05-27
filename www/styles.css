@@ -19,7 +19,7 @@
 
 .poke-card {
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
   padding: 10px;
   margin-bottom: 20px;
   max-width: 300px;
@@ -34,6 +34,16 @@
   overflow-y: hidden;
   height: 300px;
   max-height: 300px;
+}
+
+.first_comp {
+  box-shadow: 0 4px 8px rgba(0, 100, 0, 0.8) !important;
+  max-height: 500px !important;
+  height 500px !important;
+}
+
+.card.bslib-card.bslib-mb-spacing.html-fill-item.html-fill-container.poke-card.second_comp {
+  box-shadow: 0 4px 8px rgba(255, 100, 0, 0.8) !important;
 }
 
 .poke-row {
@@ -167,3 +177,8 @@ hr{position:relative;bottom:4px; border-bottom:1px solid #cccccc11;}
 .accent{accent-color: #49596e; }
 .accent:not(:checked){opacity:0.5;}
 span{font-size:0.8em;}
+
+
+.user-select-none.svg-container {
+  margin-left: -55px !important;
+}
