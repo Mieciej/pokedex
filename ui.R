@@ -47,7 +47,7 @@ first_page <-       tabItem(tabName = "dashboard",
                                     class = "poke-col",
                                     card(class = "poke-card",
                                          pokemon_selector('01'),
-                                         uiOutput("pokeOutput01"), )
+                                         uiOutput("pokeOutput01"),)
                                   ),
                                   column(
                                     4,
@@ -193,17 +193,23 @@ third_page <- tabItem(tabName = "comparison",
                           offset = 2,
                           card(class = "poke-card first_comp",
                                pokemon_selector('32'),
-                               uiOutput("pokeOutput32"))                        )
+                               uiOutput("pokeOutput32"))
+                        )
                       ),
-                      fluidRow(column(
-                        width = 12,
-                        offset = 4,
-                        plotlyOutput("comparison_plot", width = 670, height = 400),
-                        dataTableOutput("pokemon_comparision_table_01"),
-                        dataTableOutput("pokemon_comparision_table_02")
-                        
-                        
-                      ))))
+                      fluidRow(
+                        column(
+                          width = 4,
+                          dataTableOutput("pokemon_comparision_table_01")
+                        ),
+                        column(
+                          width = 4,
+                          plotlyOutput("comparison_plot", width = 670, height = 400),
+                        ),
+                        column(
+                          width = 4,
+                          dataTableOutput("pokemon_comparision_table_02")
+                        )
+                      )))
 
 dashboardPage(dashboardHeader(title = "Pokédex"),
               sidebar,

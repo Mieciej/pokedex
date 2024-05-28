@@ -17,6 +17,7 @@ library(shinycssloaders)
 library(ggtext)
 library(DT)
 library(plotly)
+library(stringr)
 
 data <- read.csv("pokedex.csv", header = TRUE)
 data <- data %>%
@@ -604,29 +605,45 @@ function(input, output, session) {
   })
   comparison_data_data_table_01 <- reactive({
     comp_stats = data %>% filter(name == input$pokeName31) %>%
-      select(type_1, type_2,hp:speed,total_points) %>%
+      select(type_1, type_2, hp:speed,total_points) %>%
       mutate(type_1 = ifelse(type_1 =="fighting","fight",type_1)) %>%
       mutate(type_2 = ifelse(type_2 =="fighting","fight",type_2)) %>%
+      mutate(type_2 = ifelse(is.na(type_2), " ", type_2)) %>%
       mutate(type_1 = type_labels[tolower(type_1)]) %>%
       mutate(type_2 = type_labels[tolower(type_2)]) %>%
-      gather("stat","value",type_1:total_points) %>%
-      filter(value!='')
+      unite("types", type_1, type_2, sep = " ") %>%
+      mutate(types = ifelse(str_sub(types, 1, 2) == "NA", str_sub(types, start = 3), types)) %>%
+      mutate(types = ifelse(str_sub(types, -2) == "NA", str_sub(types, end = -3), types)) %>%
+      gather("Statistic","Value")
   })
   output$pokemon_comparision_table_01 <- renderDataTable(
-    datatable(data = comparison_data_data_table_01(),rownames = FALSE, escape = FALSE)
+    datatable(data = comparison_data_data_table_01(),rownames = FALSE, escape = FALSE, options = list(
+      searching = FALSE,  # Removes the search bar
+      paging = FALSE,     # Removes pagination controls
+      info = FALSE,       # Removes the info text
+      lengthChange = FALSE  # Removes the length change dropdown
+    ))
   )
    
   comparison_data_data_table_02 <- reactive({
     comp_stats = data %>% filter(name == input$pokeName32) %>%
-      select(type_1, type_2,hp:speed,total_points) %>%
+      select(type_1, type_2, hp:speed,total_points) %>%
       mutate(type_1 = ifelse(type_1 =="fighting","fight",type_1)) %>%
       mutate(type_2 = ifelse(type_2 =="fighting","fight",type_2)) %>%
+      mutate(type_2 = ifelse(is.na(type_2), " ", type_2)) %>%
       mutate(type_1 = type_labels[tolower(type_1)]) %>%
       mutate(type_2 = type_labels[tolower(type_2)]) %>%
-      gather("stat","value",type_1:total_points) %>%
-      filter(value!='')
+      unite("types", type_1, type_2, sep = " ") %>%
+      mutate(types = ifelse(str_sub(types, 1, 2) == "NA", str_sub(types, start = 3), types)) %>%
+      mutate(types = ifelse(str_sub(types, -2) == "NA", str_sub(types, end = -3), types)) %>%
+      gather("Statistic","Value")
   })
   output$pokemon_comparision_table_02 <- renderDataTable(
-    datatable(data = comparison_data_data_table_02(),rownames = FALSE, escape = FALSE)
+    datatable(data = comparison_data_data_table_02(),rownames = FALSE, escape = FALSE, options = list(
+      searching = FALSE,  # Removes the search bar
+      paging = FALSE,     # Removes pagination controls
+      info = FALSE,       # Removes the info text
+      lengthChange = FALSE  # Removes the length change dropdown
+    ))
   )
 }
