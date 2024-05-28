@@ -190,3 +190,12 @@ span{font-size:0.8em;}
 .user-select-none.svg-container {
   margin-left: -55px !important;
 }
+
+.skin-blue .main-header .logo {
+  font-family: 'Press Start 2P' !important;
+}
+
+.skin-blue .left-side, .skin-blue .main-sidebar, .skin-blue .wrapper {
+  font-family: 'Press Start 2P' !important;
+  font-size: 12px !important;
+}
