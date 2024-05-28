@@ -360,7 +360,7 @@ function(input, output, session) {
   })
   
   output$national_table <- renderDataTable({
-    datatable(data = data_for_datatable(),escape = FALSE)
+    datatable(data = data_for_datatable(),escape = FALSE,rownames = FALSE)
   }) 
   
   comparison_data = reactive({
@@ -602,4 +602,31 @@ function(input, output, session) {
       ) +  
       guides(fill = "none")
   })
+  comparison_data_data_table_01 <- reactive({
+    comp_stats = data %>% filter(name == input$pokeName31) %>%
+      select(type_1, type_2,hp:speed,total_points) %>%
+      mutate(type_1 = ifelse(type_1 =="fighting","fight",type_1)) %>%
+      mutate(type_2 = ifelse(type_2 =="fighting","fight",type_2)) %>%
+      mutate(type_1 = type_labels[tolower(type_1)]) %>%
+      mutate(type_2 = type_labels[tolower(type_2)]) %>%
+      gather("stat","value",type_1:total_points) %>%
+      filter(value!='')
+  })
+  output$pokemon_comparision_table_01 <- renderDataTable(
+    datatable(data = comparison_data_data_table_01(),rownames = FALSE, escape = FALSE)
+  )
+   
+  comparison_data_data_table_02 <- reactive({
+    comp_stats = data %>% filter(name == input$pokeName32) %>%
+      select(type_1, type_2,hp:speed,total_points) %>%
+      mutate(type_1 = ifelse(type_1 =="fighting","fight",type_1)) %>%
+      mutate(type_2 = ifelse(type_2 =="fighting","fight",type_2)) %>%
+      mutate(type_1 = type_labels[tolower(type_1)]) %>%
+      mutate(type_2 = type_labels[tolower(type_2)]) %>%
+      gather("stat","value",type_1:total_points) %>%
+      filter(value!='')
+  })
+  output$pokemon_comparision_table_02 <- renderDataTable(
+    datatable(data = comparison_data_data_table_02(),rownames = FALSE, escape = FALSE)
+  )
 }

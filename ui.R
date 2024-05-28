@@ -198,7 +198,9 @@ third_page <- tabItem(tabName = "comparison",
                       fluidRow(column(
                         width = 12,
                         offset = 4,
-                        plotlyOutput("comparison_plot", width = 670, height = 400)
+                        plotlyOutput("comparison_plot", width = 670, height = 400),
+                        dataTableOutput("pokemon_comparision_table_01"),
+                        dataTableOutput("pokemon_comparision_table_02")
                         
                         
                       ))))
