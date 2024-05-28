@@ -316,7 +316,7 @@ function(input, output, session) {
                 panel.border = element_blank(),
                 panel.grid.major = element_line(color = "#404040"),
                 panel.grid.minor = element_line(color = "#404040"),
-                plot.margin = margin(0, 0, 0, 0))
+                plot.margin = margin(0, 0, 0, 0)) 
         library(grid)
         grob <- ggplotGrob(g)
         grid.newpage()

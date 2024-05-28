@@ -25,6 +25,15 @@ sidebar <- dashboardSidebar(sidebarMenu(
   )
 ))
 
+# Pierwsza strona
+## To kółko: Team Stats (Average)
+## Barchart: Average Damage Received
+
+# Druga strona:
+## Ten szeroki na górze: Best Pokęmons by Type
+## Ten na południowy zachód: Pokemon Type Frequency
+## Ten na południowy wschod: 3 Best & Worst Pokemons
+
 first_page <-       tabItem(tabName = "dashboard",
                             fluidPage(
                               tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
