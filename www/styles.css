@@ -164,6 +164,14 @@
   font-family: var(--main-font);
 }
 
+#pokemon_comparision_table_01 {
+  font-family: var(--main-font);
+}
+
+#pokemon_comparision_table_02 {
+  font-family: var(--main-font);
+}
+
 #DataTables_Table_0 td {
     height: 75px;
 }
