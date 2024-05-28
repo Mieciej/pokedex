@@ -211,7 +211,8 @@ third_page <- tabItem(tabName = "comparison",
                         )
                       )))
 
-dashboardPage(dashboardHeader(title = "Pokédex"),
+dashboardPage(dashboardHeader(title = "Pokédex", tags$li(actionLink("openAbout", label = "", icon = icon("info")),
+                                                         class = "dropdown")),
               sidebar,
               dashboardBody(tabItems(first_page,
                                      second_page,
