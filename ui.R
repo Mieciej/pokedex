@@ -25,6 +25,15 @@ sidebar <- dashboardSidebar(sidebarMenu(
   )
 ))
 
+# Pierwsza strona
+## To kółko: Team Stats (Average)
+## Barchart: Average Damage Received
+
+# Druga strona:
+## Ten szeroki na górze: Best Pokęmons by Type
+## Ten na południowy zachód: Pokemon Type Frequency
+## Ten na południowy wschod: 3 Best & Worst Pokemons
+
 first_page <-       tabItem(tabName = "dashboard",
                             fluidPage(
                               tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
@@ -189,7 +198,9 @@ third_page <- tabItem(tabName = "comparison",
                       fluidRow(column(
                         width = 12,
                         offset = 4,
-                        plotlyOutput("comparison_plot", width = 670, height = 400)
+                        plotlyOutput("comparison_plot", width = 670, height = 400),
+                        dataTableOutput("pokemon_comparision_table_01"),
+                        dataTableOutput("pokemon_comparision_table_02")
                         
                         
                       ))))
