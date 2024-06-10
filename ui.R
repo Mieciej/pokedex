@@ -88,6 +88,18 @@ first_page <-       tabItem(tabName = "dashboard",
                                 fluidRow(
                                   column(
                                     width = 4,
+                                    class = "plot-title",
+                                    tags$text("Team Stats (Average)")
+                                  ),
+                                  column(
+                                    width = 8,
+                                    class = "plot-title",
+                                    tags$text("Average Damage Received")
+                                  )
+                                ),
+                                fluidRow(
+                                  column(
+                                    width = 4,
                                     plotOutput("avg_stat", width = "461px", height = "400px"),
                                     class = "avg-stat-plot"
                                   ),
@@ -164,7 +176,26 @@ second_page <- tabItem(tabName = "widgets",
                          
                          
                          dataTableOutput("national_table"),
+                         fluidRow(
+                           column(
+                             width=12,
+                             class = "plot-title",
+                             tags$text("Best Pokémons by Type"),
+                           )
+                         ),
                          plotOutput("best_pokemon_by_type_histogram"),
+                         fluidRow(
+                           column(
+                             width = 7,
+                             class = "plot-title",
+                             tags$text("Pokemon Type Frequency")
+                           ),
+                           column(
+                             width = 5,
+                             class = "plot-title",
+                             tags$text("3 Best & Worst Pokémons")
+                           )
+                         ),
                          fluidRow(
                            column(
                              width = 7,

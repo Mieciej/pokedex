@@ -199,3 +199,34 @@ span{font-size:0.8em;}
   font-family: 'Press Start 2P' !important;
   font-size: 12px !important;
 }
+
+.skin-blue .main-header .navbar {
+  background-color: #f41717;
+}
+
+.skin-blue .main-header .logo {
+  background-color: #f41717;
+}
+
+.skin-blue .left-side, .skin-blue .main-sidebar, .skin-blue .wrapper {
+  background-color: #000;
+}
+
+.skin-blue .main-header .logo:hover {
+  background-color: #f41717;
+}
+
+.skin-blue .main-header .navbar:hover {
+  background-color: #f41717;
+}
+
+.skin-blue .main-header .navbar .sidebar-toggle:hover {
+  background-color: #c21313;
+}
+
+
+
+.plot-title {
+  font-family: var(--main-font);
+  font-size: 20px;
+}
