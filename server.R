@@ -167,6 +167,7 @@ function(input, output, session) {
     showModal(
       modalDialog(
         title = "About the Project",
+        tags$img(src = "icons/PP_logotyp_RGB.png", width = 300),
         tags$div(
           style = "text-align: justify;",
           tags$p(
@@ -185,7 +186,7 @@ function(input, output, session) {
               ),
           
           )
-        )
+        ),
       )
     )
   })
@@ -290,10 +291,7 @@ function(input, output, session) {
       selected_pokemons_comp$pokeName31,
       selected_pokemons_comp$pokeName32
     )
-    
-    print(names_comp[1])
-    print(names_comp[2])
-    
+
     comparison_stats = data %>% filter(
       name == selected_pokemons_comp$pokeName31 |
       name == selected_pokemons_comp$pokeName32)
